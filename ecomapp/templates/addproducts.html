@@ -1,0 +1,62 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+
+
+       <!-- BEGIN #page-header -->
+        <div id="page-header" class="section-container page-header-container bg-black">
+            <!-- BEGIN page-header-cover -->
+            <div class="page-header-cover">
+                <img src="{% static 'assets/img/contact-us-cover.jpg' %}" alt="" />
+            </div>
+            <!-- END page-header-cover -->
+            <!-- BEGIN container -->
+            <div class="container">
+                <h1 class="page-header"><b>Add Your Products</b> </h1>
+            </div>
+            <!-- END container -->
+        </div>
+        <!-- BEGIN #page-header -->
+
+        <!-- BEGIN #product -->
+        <div id="product" class="section-container p-t-20">
+            <!-- BEGIN container -->
+            <div class="container">
+                <!-- BEGIN breadcrumb -->
+                <ul class="breadcrumb m-b-10 f-s-12">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Support</a></li>
+                    <li class="active">Contact Us</li>
+                </ul>
+                <!-- END breadcrumb -->
+                <!-- BEGIN row -->
+                <div class="row row-space-30">
+                    <!-- BEGIN col-8 -->
+                    <div class="col-md-8">
+                        <h4 class="m-t-0">Add Products</h4>
+                        <p class="m-b-30 f-s-13">
+                            If You Want To Buy Any Products And Getting Special Discounts And Offers
+                        </p>
+                       <form class="form-horizontal" name="contact_us_form" method="POST" enctype="multipart/form-data">
+                           {% csrf_token %}
+                            {{form.as_p}}
+
+                            <div class="form-group">
+                                <div class="col-md-offset-3 col-md-7">
+                                    <button type="submit" class="btn btn-inverse btn-lg">Save</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                    <!-- END col-8 -->
+                    <!-- BEGIN col-4 -->
+
+                    <!-- END col-4 -->
+                </div>
+                <!-- END row -->
+            </div>
+            <!-- END row -->
+        </div>
+        <!-- END #product -->
+{% endblock content %}

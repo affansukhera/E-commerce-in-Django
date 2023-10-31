@@ -1,0 +1,53 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+
+
+       <!-- BEGIN #page-header -->
+        <div id="page-header" class="section-container page-header-container bg-black">
+            <!-- BEGIN page-header-cover -->
+            <div class="page-header-cover">
+                <img src="{% static 'assets/img/contact-us-cover.jpg' %}" alt="" />
+            </div>
+
+            <!-- END container -->
+        </div>
+        <!-- BEGIN #page-header -->
+
+        <!-- BEGIN #product -->
+        <div id="product" class="section-container p-t-20">
+            <!-- BEGIN container -->
+            <div class="container">
+                <!-- BEGIN breadcrumb -->
+
+                <!-- END breadcrumb -->
+                <!-- BEGIN row -->
+                <div class="row row-space-30">
+                    <!-- BEGIN col-8 -->
+                    <div class="col-md-8">
+
+                       <form class="form-horizontal" name="contact_us_form" method="POST" enctype="multipart/form-data">
+                           {% csrf_token %}
+                            {{form.as_p}}
+
+                            <div class="form-group">
+                                <div class="col-md-offset-3 col-md-7">
+                                    <button type="submit" class="btn btn-inverse btn-lg">Sign Up</button>
+                                    <a href="{% url 'login' %}" class="btn btn-inverse btn-lg">Already Signed Up??>Login</a>
+
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                    <!-- END col-8 -->
+                    <!-- BEGIN col-4 -->
+
+                    <!-- END col-4 -->
+                </div>
+                <!-- END row -->
+            </div>
+            <!-- END row -->
+        </div>
+        <!-- END #product -->
+{% endblock content %}
