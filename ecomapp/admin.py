@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ParentCategory, ChildCategory, Product, ProductDescription, ProductImage,Contact, Cart, UserProfile, ShippingAddress
+from .models import ParentCategory, ChildCategory, Product, ProductDescription, ProductImage, Contact, Cart, UserProfile, ShippingAddress, AdditionalInfo, Review
 
 
 @admin.register(ParentCategory)
@@ -46,3 +46,12 @@ class UserProfileAdmin(admin.ModelAdmin):
 class ShippingAddressAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name', 'company_name',  'area_code', 'primary_phone', 'street_address', 'zip_code', 'business_address']
 
+
+@admin.register(AdditionalInfo)
+class AdditionalInfoAdmin(admin.ModelAdmin):
+    list_display = ['product', 'title_1', 'title_2', 'features', 'description_1', 'description_2']
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product', 'title', 'message', 'rating', 'created_at']

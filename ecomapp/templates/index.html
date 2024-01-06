@@ -265,7 +265,7 @@
                                                     <p class="price">${{ item.product.discounted_price }}</p>
                                                 </div>
                                                 <div class="cart-item-close">
-                                                    <a href="#" data-toggle="tooltip" data-title="Remove">&times;</a>
+                                                    <a href="{% url 'remove_from_cart' product_id=item.product.id %}" data-toggle="tooltip" data-title="Remove">&times;</a>
                                                 </div>
                                             </li>
                                            {% endfor %}

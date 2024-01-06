@@ -47,7 +47,8 @@ class Product(models.Model):
     def discounted_price(self):
         discount_amount = (float(self.discount_percentage) / 100) * float(self.price)
         discounted_price = float(self.price) - discount_amount
-        return "{:.2f}".format(discounted_price)
+        formatted_discounted_price = "{:.2f}".format(round(discounted_price, 2))
+        return formatted_discounted_price
 
     def formatted_price(self):
         return "{:.2f}".format(self.price)
@@ -82,6 +83,15 @@ class Contact(models.Model):
         return self.name
 
 
+class AdditionalInfo(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='additional_infos', null=True, blank=True)
+    title_1 = models.CharField(max_length=100, blank=True, default='')
+    title_2 = models.CharField(max_length=100, blank=True, default='')
+    features = models.CharField(max_length=100, null=True, blank=True, default='')
+    description_1 = models.TextField(max_length=200, null=True, blank=True, default='')
+    description_2 = models.TextField(max_length=200, null=True, blank=True, default='')
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_profile', null=True, blank=True)
     image = models.ImageField(upload_to='images/', null=True, blank=True)
@@ -101,6 +111,18 @@ class Cart(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     is_ordered = models.BooleanField(default=False)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews', null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews', null=True, blank=True)
+    title = models.CharField(max_length=100)
+    message = models.TextField(max_length=200,)
+    rating = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username

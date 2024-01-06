@@ -72,8 +72,11 @@
                         </div>
                         <!-- END checkout-header -->
                         <!-- BEGIN checkout-body -->
+
                         <div class="checkout-body">
 							<h4 class="checkout-title">Choose a payment method</h4>
+        <form action="{% url 'checkoutcomplete' %}" method="POST" class="form-horizontal">
+                         {% csrf_token %}
                             <div class="form-group">
                                 <label class="col-md-4 control-label">Cardholder Name <span class="text-danger">*</span></label>
                                 <div class="col-md-4">
@@ -130,7 +133,7 @@
                         <!-- BEGIN checkout-footer -->
                         <div class="checkout-footer">
                             <a href="{% url 'checkoutinfo' %}" class="btn btn-white btn-lg pull-left">Back</a>
-                            <button type="submit" class="btn btn-inverse btn-lg p-l-30 p-r-30 m-l-10">Proceed</button>
+                            <a href="{% url 'checkoutcomplete' %}"><button type="submit" class="btn btn-inverse btn-lg p-l-30 p-r-30 m-l-10">Proceed</button></a>
                         </div>
                         <!-- END checkout-footer -->
                     </form>
@@ -202,6 +205,7 @@
                 <!-- END checkout-question-list -->
             </div>
             <!-- END container -->
+          </form>
         </div>
         <!-- END #checkout-payment -->
     

@@ -110,6 +110,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+STRIPE_SECRET_KEY = 'sk_test_51O7xBqLJdFPgHtOul3NhWMDHQGQBZsDe7KKAJEeHIhyMwoL9JgdMvEtDIiPibZnziAIKMKFS66BVohUqbUX8OAHF006cFvSQcz'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51O7xBqLJdFPgHtOu947HRvVzRWEYSEPNK9gDBaHgFcihgpgzCisD0AySe0Evyp35wu1mSE4CEX2HBDPpegUp5Xsz00SsUOK01r'
+
 STATIC_URL = 'static/'
 import os
 

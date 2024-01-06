@@ -1,0 +1,27 @@
+{% load static %}
+{% block content %}
+  <div id="page-header" class="section-container page-header-container bg-black">
+    <!-- BEGIN page-header-cover -->
+    <div class="page-header-cover">
+    </div>
+    <!-- END page-header-cover -->
+    <!-- BEGIN container -->
+    <div class="container">
+      <h1 class="page-header"><b>Deleting the Cart Item</b></h1>
+      <hr>
+    </div>
+    <!-- END container -->
+  </div>
+
+  <div class="container mt-5 d-flex flex-column justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-6">
+      <form method="POST" action="">
+        {% csrf_token %}
+        <p>Are you sure that you want to delete "{{ product_name }}"?</p>
+        <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary mb-3">Go back</a>
+        <input type="submit" class="btn btn-danger" value="Confirm" />
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

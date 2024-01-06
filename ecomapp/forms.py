@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
 from django.contrib.auth.models import User
-from .models import Product, Contact, ShippingAddress
+from .models import Product, Contact, ShippingAddress, Review
 
 
 class LogInForm(AuthenticationForm):
@@ -98,4 +98,20 @@ class ShippingAddressForm(forms.ModelForm):
             'street_address': 'Street Address',
             'zip_code': 'Zip Code',
             'business_address': 'Business Address',
+        }
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['title', 'message', 'rating', 'product']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Message'}),
+            'rating': forms.NumberInput(attrs={'min': '1', 'max': '5'}),
+        }
+        labels = {
+            'title': 'Title',
+            'message': 'Message',
+            'rating': 'Rating',
         }

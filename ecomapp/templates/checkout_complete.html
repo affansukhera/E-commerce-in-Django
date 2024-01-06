@@ -9,6 +9,7 @@
                 <!-- BEGIN checkout -->
                 <div class="checkout">
                     <form action="{% url 'checkoutinfo' %}" method="POST" name="form_checkout">
+                        {% csrf_token %}
                         <!-- BEGIN checkout-header -->
                         <div class="checkout-header">
                             <!-- BEGIN row -->

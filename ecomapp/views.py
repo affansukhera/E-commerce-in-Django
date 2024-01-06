@@ -2,14 +2,15 @@ from django.views.generic import TemplateView, ListView, FormView
 from .forms import LogInForm, SIGNUPForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse_lazy
 from django.db.models import Q
 from django.views import View
-from .forms import ProductForm, ContactForm, ShippingAddressForm
-from .models import Product, ParentCategory, ChildCategory, Cart
-from django.contrib.auth.models import User
+from .forms import ProductForm, ContactForm, ShippingAddressForm, ReviewForm
+from .models import Product, ParentCategory, ChildCategory, Cart, Review
 from django.http import JsonResponse
+import stripe
+from django.conf import settings
 
 
 class HomeView(ListView):
@@ -36,8 +37,38 @@ class HomeView(ListView):
         return context
 
 
+class TabletView(TemplateView):
+    template_name = 'tablets.html'
+    model = Product
+    context_object_name = 'tabletlistings'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        parent_category = get_object_or_404(ParentCategory, name='Tablet')
+        products = Product.objects.filter(category__parent_category=parent_category)
+        tabletcount = Product.objects.filter(category__parent_category=parent_category).count()
+        context['tabletcount'] = tabletcount
+        context['tabletlistings'] = products
+        return context
+
+
 class AboutUsView(TemplateView):
     template_name = 'about_us.html'
+
+
+class MobilesView(TemplateView):
+    template_name = 'mobile_phones.html'
+    model = Product
+    context_object_name = 'mobilelistings'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        parent_category = get_object_or_404(ParentCategory, name='Mobile')
+        products = Product.objects.filter(category__parent_category=parent_category)
+        mobilecount = Product.objects.filter(category__parent_category=parent_category).count()
+        context['mobilecount'] = mobilecount
+        context['mobilelistings'] = products
+        return context
 
 
 class AppleAccessoriesView(TemplateView):
@@ -83,6 +114,7 @@ class AppleWatchesView(TemplateView):
         applewatchcount = Product.objects.filter(category=apple_category).count()
         context['applewatchcount'] = applewatchcount
         context['applewatchlistings'] = products
+
         return context
 
 
@@ -185,20 +217,61 @@ def add_to_cart(request, product_id):
 class CheckOutCompleteView(TemplateView):
     template_name = 'checkout_complete.html'
 
+    def post(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data(success=True))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['success'] = kwargs.get('success', False)
+        return context
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 class CheckOutPaymentView(TemplateView):
     template_name = 'checkout_payment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        cart_items = Cart.objects.filter(user=user, is_ordered=False)
+        cart_data = []
+        cart_total = 0
+        for item in cart_items:
+            product = item.product
+            cart_data.append({
+                'product_name': product.title,
+                'quantity': item.quantity,
+                'discounted_price': product.discounted_price(),
+                'formatted_price': product.formatted_price(),
+                # Add more fields as needed
+            })
+            cart_total += float(product.discounted_price()) * item.quantity
+        formatted_cart_total = "{:.2f}".format(cart_total)
+        order_total = int(cart_total * 100)
+        intent = stripe.PaymentIntent.create(
+            amount=order_total,
+            currency='usd',
+            description="Example charge",
+        )
+        stripe.Charge.create(
+            amount=order_total,
+            currency="usd",
+            source="tok_amex",
+            description="My First Test Charge (created for API docs at https://www.stripe.com/docs/api)",
+        )
+        context['client_secret'] = intent.client_secret
+        context['cart_data'] = cart_data
+        context['cart_total'] = formatted_cart_total
+        return context
 
 
 class CheckOutInfoView(FormView):
     template_name = 'checkout_info.html'
     form_class = ShippingAddressForm
     success_url = '/checkoutpayment/'
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['cart_items'] = Cart.objects.filter(user=self.request.user, is_ordered=False)
-    #     return context
 
     def form_valid(self, form):
         form.save()
@@ -263,6 +336,9 @@ class FaqView(TemplateView):
 
 class ProductDetailView(TemplateView):
     template_name = 'product_detail.html'
+    form_class = ReviewForm
+    success_url = '/'
+    model = Review
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -273,7 +349,21 @@ class ProductDetailView(TemplateView):
         context['featured_products'] = Product.objects.filter(is_featured=True)
         context['parent_categories'] = ParentCategory.objects.all()
         context['categories'] = ChildCategory.objects.all()
+        context['reviews'] = Review.objects.filter(product=product)
+        # stars = [{'class': 'fa fa-star', 'value': i} for i in range(1, 6)]
+        # context['stars'] = stars
+        # for review in context['reviews']:
+        #     review.active_stars = range(review.rating)
+        #     review.inactive_stars = range(5 - review.rating)
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('productdetail', kwargs['product_name'])
+        else:
+            return redirect('productdetail', kwargs['product_name'])
 
 
 class ProductListView(ListView):
@@ -312,6 +402,28 @@ class SearchView(ListView):
         return context
 
 
+# def delete_cart_item(request, product_id):
+#     cart_item = get_object_or_404(Cart, product__id=product_id, user=request.user, is_ordered=False)
+#     cart_item.delete()
+#     return redirect('/')
+
+
+def delete_cart_item(request, product_id):
+    cart_item = get_object_or_404(Cart, product__id=product_id, user=request.user, is_ordered=False)
+
+    if request.method == 'POST':
+        product_name = cart_item.product.title
+        cart_item.delete()
+        return redirect('/')
+    else:
+        product_name = cart_item.product.title
+        context = {
+            'product_id': product_id,
+            'product_name': product_name,
+        }
+        return render(request, 'delete_cart_items.html', context)
+
+
 class MyAccountView(TemplateView):
     template_name = 'my_account.html'
 
@@ -320,3 +432,11 @@ class IndexView(TemplateView):
     template_name = 'index.html'
 
 
+# class ReviewView(FormView):
+#     template_name = 'product_detail.html'
+#     form_class = ReviewForm
+#     success_url = '/'
+#
+#     def form_valid(self, form):
+#         form.save()
+#         return super().form_valid(form)
